@@ -1,5 +1,8 @@
 (async function () {
 const core = {
+    variables: {
+        consoleOutputs: "",
+    },
     html: {},
     functions: {
         init: {
@@ -27,9 +30,10 @@ const core = {
                 // document.body.style.transform = "scale(1.5) translate(50px, 50px)";
                 // document.body.style.transformOrigin = "top left";
             },
-            console: () => {
+            consoleInit: () => {
                 core.html.cconsole = {};
-
+            },
+            consoleOut: () => {
                 // Create output element
                 core.html.cconsole.consoleOut = document.createElement("div");
 
@@ -47,7 +51,54 @@ const core = {
                 // Add the div element to the document
                 document.body.appendChild(cconsoleOut);
 
-                cconsoleOut.innerHTML = "test";
+                cconsoleOut.innerHTML = "Core Console by xShadowBlade";
+            },
+            consoleBind: () => {
+                const config = {
+                    type: true,
+                    timeStamp: false,
+                    value: true,
+                }
+                if (console.everything === undefined) {
+                    console.everything = [];
+                    function TS(){
+                        return (new Date).toLocaleString("sv", { timeZone: 'UTC' }) + "Z";
+                    };
+                    window.onerror = function (error, url, line) {
+                        let output = {};
+                        config.type ? output["type"] = "exception": undefined;
+                        config.timeStamp ? output["timestamp"] = TS(): undefined;
+                        config.value ? output["value"] = { error, url, line }: undefined;
+                        console.everything.push(output);
+                        return false;
+                    };
+                    window.onunhandledrejection = function (e) {
+                        let output = {};
+                        config.type ? output["type"] = "promiseRejection": undefined;
+                        config.timeStamp ? output["timestamp"] = TS(): undefined;
+                        config.value ? output["value"] = e.reason: undefined;
+                        console.everything.push(output);
+                    };
+                  
+                    function hookLogType(logType) {
+                        const original= console[logType].bind(console);
+                        return function(){
+                            let output = {};
+                            config.type ? output["type"] = logType: undefined;
+                            config.timeStamp ? output["timestamp"] = TS(): undefined;
+                            config.value ? output["value"] = Array.from(arguments): undefined;
+                            console.everything.push(output);
+                            original.apply(console, arguments);
+                            // Update output
+                            for (let x of console.everything) core.variables.consoleOutputs += `${JSON.stringify(x)} <br>`;
+                            core.html.cconsole.consoleOut.innerHTML = core.variables.consoleOutputs;
+                        };
+                    };
+                  
+                    ['log', 'error', 'warn', 'debug'].forEach(logType=>{
+                        console[logType] = hookLogType(logType)
+                    })
+                };
             }
         },
         loop: {}
