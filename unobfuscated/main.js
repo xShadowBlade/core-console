@@ -90,8 +90,9 @@ const core = {
                             console.everything.push(output);
                             original.apply(console, arguments);
                             // Update output
-                            for (let x of console.everything) core.variables.consoleOutputs += `${JSON.stringify(x)} <br>`;
-                            core.html.cconsole.consoleOut.innerHTML = core.variables.consoleOutputs;
+                            let a = "";
+                            for (let x of console.everything) a += `${JSON.stringify(x)} <br>`;
+                            core.html.cconsole.consoleOut.innerHTML = a;
                         };
                     };
                   
