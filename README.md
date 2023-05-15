@@ -11,5 +11,9 @@ Sequel to ethereal console. Includes error logging and code execution like inspe
 <br><img src="https://img.shields.io/badge/Made%20by%3A-xShadowBlade%232720-blue?style=social&logo=discord">
 </div>
 
+## Features
+- Error logging
+- Code Execution
+
 ## Changelogs
 5/12/2023 - Start of history

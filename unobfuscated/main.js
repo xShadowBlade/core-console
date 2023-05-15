@@ -1,8 +1,8 @@
-(async function () {
+javascript:(function () {
 const core = {
     variables: {
         consoleOutputs: "",
-        version: "v-db#1.0",
+        version: "v-db#1.1",
     },
     html: {},
     functions: {
@@ -41,16 +41,15 @@ const core = {
                 const cconsoleOut = core.html.cconsole.consoleOut;
                 // Set the CSS styles for the white rectangle
                 cconsoleOut.style.position = "fixed";
-                cconsoleOut.style.top = "0";
-                cconsoleOut.style.right = "0";
-                cconsoleOut.style.width = "30%";
                 cconsoleOut.style.height = "70%";
                 cconsoleOut.style.background = "white";
-                cconsoleOut.style.zIndex = "9999";
-                cconsoleOut.style.border = "1px solid";
+                cconsoleOut.style.zIndex = "90999";
+                cconsoleOut.style.border = "2px solid";
+                cconsoleOut.style.width = "100%";
+                cconsoleOut.style["overflow-y"] = "auto";
 
                 // Add the div element to the document
-                document.body.appendChild(cconsoleOut);
+                core.html.container.appendChild(cconsoleOut);
 
                 cconsoleOut.innerHTML = "Core Console by xShadowBlade";
             },
@@ -102,6 +101,53 @@ const core = {
                     })
                 };
             },
+            consoleExecute: () => {
+                // Create execute element
+                core.html.cconsole.cconsoleExe = document.createElement("div");
+
+                const cconsoleExe = core.html.cconsole.cconsoleExe;
+                // Set the CSS styles for the white rectangle
+                cconsoleExe.style.position = "fixed";
+                cconsoleExe.style.height = "30%";
+                cconsoleExe.style.bottom = "0";
+                cconsoleExe.style.background = "white";
+                cconsoleExe.style.zIndex = "99999";
+                cconsoleExe.style.border = "2px solid";
+                cconsoleExe.style.width = "100%";
+                cconsoleExe.style["overflow-y"] = "auto";
+
+                cconsoleExe.contentEditable = "true";
+                cconsoleExe.innerHTML = "Enter code here and press `enter` to execute! <br> Note: If you want a new line, press `shift + enter`";
+
+                // Add the div element to the document
+                core.html.container.appendChild(cconsoleExe);
+
+                function cspEval(js) {
+                    var script = document.createElement("script");
+                
+                    // No Blob ? No CSP !
+                    if (Blob) {
+                        var blob = new Blob([js], {"type": "application/javascript"});
+                        script.src = URL.createObjectURL(blob);
+                    } else {
+                        var dataUri = "data:application/javascript," + js;
+                        script.src = dataUri;
+                    }
+                
+                    var callback = function() { document.body.appendChild(script) };
+                    document.readyState === "complete" ? callback() : window.onload = callback;
+                }
+
+                cconsoleExe.addEventListener("keypress", function (event) {
+                    if (!(event.shiftKey) && event.key == "Enter") {
+                        event.preventDefault(); // prevent enter from being pressed
+                        const input = cconsoleExe.innerHTML;
+                        console.log(input);
+                        cspEval(input);
+                    }
+                });
+
+            },
             getCurrentRelease: () => {
                 fetch(`https://api.github.com/repos/xShadowBlade/core-console/releases/latest`)
                     .then(response => response.json())
@@ -109,9 +155,9 @@ const core = {
                         const latestVersion = data.tag_name;
                         console.log("Latest release version:", latestVersion);
                         if (core.variables.version != latestVersion) {
-                            console.log(`Your current version of Core Console is outdated. (${core.variables.version}) Please update to ${latestVersion} by visiting https://github.com/xShadowBlade/core-console and going to the releases page.`);
+                            console.log(`Your current version of Core Console is outdated. (${core.variables.version}) Please update to ${latestVersion} by visiting <a>${data.html_url}</a>`);
                         } else {
-                            console.log("Welcome to Core Console. Detailed instructions coming soon™");
+                            console.log(`Welcome to Core Console ${core.variables.version} ${data.name}. Detailed instructions coming soon™`);
                         }
                     })
                     .catch(error => {
