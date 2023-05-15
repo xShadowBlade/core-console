@@ -2,6 +2,7 @@
 const core = {
     variables: {
         consoleOutputs: "",
+        version: "v-db#1.0",
     },
     html: {},
     functions: {
@@ -100,7 +101,24 @@ const core = {
                         console[logType] = hookLogType(logType)
                     })
                 };
-            }
+            },
+            getCurrentRelease: () => {
+                fetch(`https://api.github.com/repos/xShadowBlade/core-console/releases/latest`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const latestVersion = data.tag_name;
+                        console.log("Latest release version:", latestVersion);
+                        if (core.variables.version != latestVersion) {
+                            console.log(`Your current version of Core Console is outdated. (${core.variables.version}) Please update to ${latestVersion} by visiting https://github.com/xShadowBlade/core-console and going to the releases page.`);
+                        } else {
+                            console.log("Welcome to Core Console. Detailed instructions coming soon™");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching release version:", error);
+                        console.log("Maybe this website is blocking external requests. Try going to a different website to check for updates.")
+                    });
+            },
         },
         loop: {}
     },
